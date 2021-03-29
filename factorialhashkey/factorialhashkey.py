@@ -50,8 +50,8 @@ class FHK:
     def generate_key(self):
         return FHKPrivateKey(self)
 
-    def get_hash_sign_iterations(self, data):
-        acc = int.from_bytes(data, byteorder='big')
+    def get_hash_sign_iterations(self, message_hash):
+        acc = int.from_bytes(message_hash, byteorder='big')
 
         i = acc
         key_positions = [i for i in range(self.teeth)]
@@ -64,8 +64,8 @@ class FHK:
 
         return key_hash_iterations
 
-    def get_hash_sign_iterations_complement(self, data):
-        acc = int.from_bytes(data, byteorder='big')
+    def get_hash_sign_iterations_complement(self, message_hash):
+        acc = int.from_bytes(message_hash, byteorder='big')
 
         i = acc
         key_positions = [i for i in range(self.teeth)]
