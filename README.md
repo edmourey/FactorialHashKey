@@ -1,2 +1,2 @@
 # FactorialHashKey
-one time hash based signature
+Quantum resistant one time hash based signature
