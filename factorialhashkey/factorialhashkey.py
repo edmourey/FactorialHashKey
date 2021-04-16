@@ -83,11 +83,13 @@ class FHK:
 
     def hash_key_parts(self, data, iterations):
         key_parts = []
+        sk_o = self.hash_algorithm()
+
         for i in range(self.teeth):
             sp = i * self.bytes
             sk = data[sp:sp + self.bytes]
             for r in range(iterations[i]):
-                sk_m = self.hash_algorithm()
+                sk_m = sk_o.copy()
                 sk_m.update(sk)
                 sk = sk_m.digest(self.bytes)
 
