@@ -1,7 +1,7 @@
 import hashlib
 import os
 
-from factorialhashkey.exceptions import InvalidSignature
+from factorialhashkey.exceptions import InvalidSignature, InvalidMessageHash
 
 SIZE_TO_TEETH_RATIO = {
     8: 6,
@@ -51,28 +51,28 @@ class FHK:
         return FHKPrivateKey(self)
 
     def get_hash_sign_iterations(self, message_hash):
-        acc = int.from_bytes(message_hash, byteorder='big')
+        if len(message_hash) < self.teeth:
+            raise InvalidMessageHash("Must be at lest {0} bytes long".format(self.teeth))
 
-        i = acc
         key_positions = [i for i in range(self.teeth)]
-        key_hash_iterations = [0 for i in range(self.teeth)]
+        key_hash_iterations = [0 for _ in range(self.teeth)]
 
-        for base in range(self.teeth, 1, -1):
-            i, idx = divmod(i, base)
+        for base, bb in zip(range(self.teeth, 1, -1), message_hash):
+            idx = bb % base
             key_hash_iterations[key_positions[idx]] = base - 1
             del key_positions[idx]
 
         return key_hash_iterations
 
     def get_hash_sign_iterations_complement(self, message_hash):
-        acc = int.from_bytes(message_hash, byteorder='big')
+        if len(message_hash) < self.teeth:
+            raise InvalidMessageHash("Must be at lest {0} bytes long".format(self.teeth))
 
-        i = acc
         key_positions = [i for i in range(self.teeth)]
         key_hash_iterations = self.get_hash_iterations_total()
 
-        for base in range(self.teeth, 1, -1):
-            i, idx = divmod(i, base)
+        for base, bb in zip(range(self.teeth, 1, -1), message_hash):
+            idx = bb % base
             key_hash_iterations[key_positions[idx]] = self.teeth - base
             del key_positions[idx]
 

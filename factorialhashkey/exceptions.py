@@ -32,6 +32,10 @@ class InvalidSignature(Exception):
     pass
 
 
+class InvalidMessageHash(Exception):
+    pass
+
+
 class InternalError(Exception):
     def __init__(self, msg, err_code):
         super(InternalError, self).__init__(msg)

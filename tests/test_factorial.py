@@ -1,5 +1,5 @@
 from factorialhashkey import FHK
-
+import hashlib
 
 def test_load_elliptic_curve():
     private_key = FHK(
@@ -9,7 +9,8 @@ def test_load_elliptic_curve():
     public_key = private_key.public_key()
 
     print(public_key._data)
-    message_hash = b"\x01\x02x\03"
+    message = b"Hola"
+    message_hash = hashlib.shake_256(message).digest(35)
 
     h_r = private_key.fhk.get_hash_sign_iterations(message_hash)
     hrc = private_key.fhk.get_hash_sign_iterations_complement(message_hash)
