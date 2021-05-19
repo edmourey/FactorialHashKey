@@ -4,14 +4,14 @@ import hashlib
 
 def test_factorial_hashkey_signature():
     private_key = FHK(
-        size=120
+        size=256
     ).generate_key()
 
     public_key = private_key.public_key()
 
     print(public_key._data)
     message = b"Hola"
-    message_hash = hashlib.shake_256(message).digest(32)
+    message_hash = hashlib.shake_256(message).digest(64)
 
     h_r = private_key.fhk.get_hash_sign_iterations(message_hash)
     hrc = private_key.fhk.get_hash_sign_iterations_complement(message_hash)

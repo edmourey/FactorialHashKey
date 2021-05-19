@@ -95,8 +95,15 @@ class FHK:
 
             for r in range(iterations[i]):
                 sk_m = sk_o.copy()
-                sk_m.update(sk[0:5] + self.teeth.to_bytes(1, byteorder="big") + i.to_bytes(1, byteorder="big") + (off_set + r).to_bytes(1, byteorder="big"))
-                sk_m.update(sk)
+                sk_m.update(
+                    sk[0:4] +
+                    b"0" +
+                    self.teeth.to_bytes(1, byteorder="big") +
+                    i.to_bytes(1, byteorder="big") +
+                    (off_set + r).to_bytes(1, byteorder="big") +
+                    sk
+                )
+                # sk_m.update(sk)
                 sk = sk_m.digest(self.bytes)
 
             key_parts.append(sk)
