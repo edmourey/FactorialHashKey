@@ -51,8 +51,8 @@ class FHK:
         return FHKPrivateKey(self)
 
     def get_hash_sign_iterations(self, message_hash):
-        if len(message_hash) < self.teeth:
-            raise InvalidMessageHash("Must be at lest {0} bytes long".format(self.teeth))
+        if len(message_hash) < self.teeth-1:
+            raise InvalidMessageHash("Must be at lest {0} bytes long".format(self.teeth-1))
 
         key_positions = [i for i in range(self.teeth)]
         key_hash_iterations = [0 for _ in range(self.teeth)]
@@ -65,8 +65,8 @@ class FHK:
         return key_hash_iterations
 
     def get_hash_sign_iterations_complement(self, message_hash):
-        if len(message_hash) < self.teeth:
-            raise InvalidMessageHash("Must be at lest {0} bytes long".format(self.teeth))
+        if len(message_hash) < self.teeth-1:
+            raise InvalidMessageHash("Must be at lest {0} bytes long".format(self.teeth-1))
 
         key_positions = [i for i in range(self.teeth)]
         key_hash_iterations = self.get_hash_iterations_total()
@@ -81,15 +81,22 @@ class FHK:
     def get_hash_iterations_total(self):
         return [self.teeth - 1 for _ in range(self.teeth)]
 
-    def hash_key_parts(self, data, iterations):
+    def hash_key_parts(self, data, iterations, iteration_target=0):
         key_parts = []
         sk_o = self.hash_algorithm()
 
         for i in range(self.teeth):
             sp = i * self.bytes
             sk = data[sp:sp + self.bytes]
+            if iteration_target:
+                off_set = iteration_target - iterations[i]
+            else:
+                off_set = 0
+
             for r in range(iterations[i]):
                 sk_m = sk_o.copy()
+                sk_m.update(i.to_bytes(1, byteorder="big"))
+                sk_m.update((off_set + r).to_bytes(1, byteorder="big"))
                 sk_m.update(sk)
                 sk = sk_m.digest(self.bytes)
 
@@ -100,7 +107,8 @@ class FHK:
     def derive_public_key(self, signature, message_hash):
         return self.hash_key_parts(
             signature,
-            self.get_hash_sign_iterations_complement(message_hash)
+            self.get_hash_sign_iterations_complement(message_hash),
+            iteration_target=self.teeth - 1
         )
 
 
